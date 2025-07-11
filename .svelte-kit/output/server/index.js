@@ -1,1587 +1,11 @@
-import { c as create_ssr_component, s as setContext, a as afterUpdate, v as validate_component, m as missing_component, d as decode_pathname, b as decode_params, n as normalize_path, e as disable_search, f as validate_layout_server_exports, g as validate_layout_exports, h as validate_page_server_exports, i as validate_page_exports, r as resolve, j as make_trackable, k as noop, l as safe_not_equal } from './chunks/exports-Ct0GRX6O.js';
-
-class HttpError {
-	/**
-	 * @param {number} status
-	 * @param {{message: string} extends App.Error ? (App.Error | string | undefined) : App.Error} body
-	 */
-	constructor(status, body) {
-		this.status = status;
-		if (typeof body === 'string') {
-			this.body = { message: body };
-		} else if (body) {
-			this.body = body;
-		} else {
-			this.body = { message: `Error: ${status}` };
-		}
-	}
-
-	toString() {
-		return JSON.stringify(this.body);
-	}
-}
-
-class Redirect {
-	/**
-	 * @param {300 | 301 | 302 | 303 | 304 | 305 | 306 | 307 | 308} status
-	 * @param {string} location
-	 */
-	constructor(status, location) {
-		this.status = status;
-		this.location = location;
-	}
-}
-
-/**
- * An error that was thrown from within the SvelteKit runtime that is not fatal and doesn't result in a 500, such as a 404.
- * `SvelteKitError` goes through `handleError`.
- * @extends Error
- */
-class SvelteKitError extends Error {
-	/**
-	 * @param {number} status
-	 * @param {string} text
-	 * @param {string} message
-	 */
-	constructor(status, text, message) {
-		super(message);
-		this.status = status;
-		this.text = text;
-	}
-}
-
-/**
- * @template {Record<string, unknown> | undefined} [T=undefined]
- */
-class ActionFailure {
-	/**
-	 * @param {number} status
-	 * @param {T} data
-	 */
-	constructor(status, data) {
-		this.status = status;
-		this.data = data;
-	}
-}
-
-const node_env = globalThis.process?.env?.NODE_ENV;
-node_env && !node_env.toLowerCase().startsWith('prod');
-
-/**
- * Create a JSON `Response` object from the supplied data.
- * @param {any} data The value that will be serialized as JSON.
- * @param {ResponseInit} [init] Options such as `status` and `headers` that will be added to the response. `Content-Type: application/json` and `Content-Length` headers will be added automatically.
- */
-function json(data, init) {
-	// TODO deprecate this in favour of `Response.json` when it's
-	// more widely supported
-	const body = JSON.stringify(data);
-
-	// we can't just do `text(JSON.stringify(data), init)` because
-	// it will set a default `content-type` header. duplicated code
-	// means less duplicated work
-	const headers = new Headers(init?.headers);
-	if (!headers.has('content-length')) {
-		headers.set('content-length', encoder$3.encode(body).byteLength.toString());
-	}
-
-	if (!headers.has('content-type')) {
-		headers.set('content-type', 'application/json');
-	}
-
-	return new Response(body, {
-		...init,
-		headers
-	});
-}
-
-const encoder$3 = new TextEncoder();
-
-/**
- * Create a `Response` object from the supplied body.
- * @param {string} body The value that will be used as-is.
- * @param {ResponseInit} [init] Options such as `status` and `headers` that will be added to the response. A `Content-Length` header will be added automatically.
- */
-function text(body, init) {
-	const headers = new Headers(init?.headers);
-	if (!headers.has('content-length')) {
-		const encoded = encoder$3.encode(body);
-		headers.set('content-length', encoded.byteLength.toString());
-		return new Response(encoded, {
-			...init,
-			headers
-		});
-	}
-
-	return new Response(body, {
-		...init,
-		headers
-	});
-}
-
-let base = "";
-let assets = base;
-const app_dir = "_app";
-const initial = { base, assets };
-function override(paths) {
-  base = paths.base;
-  assets = paths.assets;
-}
-function reset() {
-  base = initial.base;
-  assets = initial.assets;
-}
-let public_env = {};
-let safe_public_env = {};
-function set_public_env(environment) {
-  public_env = environment;
-}
-function set_safe_public_env(environment) {
-  safe_public_env = environment;
-}
-let read_implementation = null;
-function set_read_implementation(fn) {
-  read_implementation = fn;
-}
-const Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  let { stores } = $$props;
-  let { page } = $$props;
-  let { constructors } = $$props;
-  let { components = [] } = $$props;
-  let { form } = $$props;
-  let { data_0 = null } = $$props;
-  let { data_1 = null } = $$props;
-  {
-    setContext("__svelte__", stores);
-  }
-  afterUpdate(stores.page.notify);
-  if ($$props.stores === void 0 && $$bindings.stores && stores !== void 0) $$bindings.stores(stores);
-  if ($$props.page === void 0 && $$bindings.page && page !== void 0) $$bindings.page(page);
-  if ($$props.constructors === void 0 && $$bindings.constructors && constructors !== void 0) $$bindings.constructors(constructors);
-  if ($$props.components === void 0 && $$bindings.components && components !== void 0) $$bindings.components(components);
-  if ($$props.form === void 0 && $$bindings.form && form !== void 0) $$bindings.form(form);
-  if ($$props.data_0 === void 0 && $$bindings.data_0 && data_0 !== void 0) $$bindings.data_0(data_0);
-  if ($$props.data_1 === void 0 && $$bindings.data_1 && data_1 !== void 0) $$bindings.data_1(data_1);
-  let $$settled;
-  let $$rendered;
-  let previous_head = $$result.head;
-  do {
-    $$settled = true;
-    $$result.head = previous_head;
-    {
-      stores.page.set(page);
-    }
-    $$rendered = `  ${constructors[1] ? `${validate_component(constructors[0] || missing_component, "svelte:component").$$render(
-      $$result,
-      { data: data_0, this: components[0] },
-      {
-        this: ($$value) => {
-          components[0] = $$value;
-          $$settled = false;
-        }
-      },
-      {
-        default: () => {
-          return `${validate_component(constructors[1] || missing_component, "svelte:component").$$render(
-            $$result,
-            { data: data_1, form, this: components[1] },
-            {
-              this: ($$value) => {
-                components[1] = $$value;
-                $$settled = false;
-              }
-            },
-            {}
-          )}`;
-        }
-      }
-    )}` : `${validate_component(constructors[0] || missing_component, "svelte:component").$$render(
-      $$result,
-      { data: data_0, form, this: components[0] },
-      {
-        this: ($$value) => {
-          components[0] = $$value;
-          $$settled = false;
-        }
-      },
-      {}
-    )}`} ${``}`;
-  } while (!$$settled);
-  return $$rendered;
-});
-const options = {
-  app_template_contains_nonce: false,
-  csp: { "mode": "auto", "directives": { "upgrade-insecure-requests": false, "block-all-mixed-content": false }, "reportOnly": { "upgrade-insecure-requests": false, "block-all-mixed-content": false } },
-  csrf_check_origin: true,
-  embedded: false,
-  env_public_prefix: "PUBLIC_",
-  env_private_prefix: "",
-  hash_routing: false,
-  hooks: null,
-  // added lazily, via `get_hooks`
-  preload_strategy: "modulepreload",
-  root: Root,
-  service_worker: false,
-  templates: {
-    app: ({ head, body, assets: assets2, nonce, env }) => '<!doctype html>\n\n<!--\n Copyright 2023 Google LLC\n\n Licensed under the Apache License, Version 2.0 (the "License");\n you may not use this file except in compliance with the License.\n You may obtain a copy of the License at\n\n      https://www.apache.org/licenses/LICENSE-2.0\n\n Unless required by applicable law or agreed to in writing, software\n distributed under the License is distributed on an "AS IS" BASIS,\n WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n See the License for the specific language governing permissions and\n limitations under the License.\n -->\n\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <link rel="icon" href="' + assets2 + '/favicon.png" />\n    <link\n      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"\n      rel="stylesheet"\n    />\n    <meta name="viewport" content="width=device-width" />\n    ' + head + `
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELSHHVFHYD"><\/script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'G-ELSHHVFHYD');
-    <\/script>
-  </head>
-
-  <body data-sveltekit-preload-data="hover">
-    <div style="display: contents">` + body + "</div>\n  </body>\n</html>\n",
-    error: ({ status, message }) => '<!doctype html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<title>' + message + `</title>
-
-		<style>
-			body {
-				--bg: white;
-				--fg: #222;
-				--divider: #ccc;
-				background: var(--bg);
-				color: var(--fg);
-				font-family:
-					system-ui,
-					-apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					Oxygen,
-					Ubuntu,
-					Cantarell,
-					'Open Sans',
-					'Helvetica Neue',
-					sans-serif;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				height: 100vh;
-				margin: 0;
-			}
-
-			.error {
-				display: flex;
-				align-items: center;
-				max-width: 32rem;
-				margin: 0 1rem;
-			}
-
-			.status {
-				font-weight: 200;
-				font-size: 3rem;
-				line-height: 1;
-				position: relative;
-				top: -0.05rem;
-			}
-
-			.message {
-				border-left: 1px solid var(--divider);
-				padding: 0 0 0 1rem;
-				margin: 0 0 0 1rem;
-				min-height: 2.5rem;
-				display: flex;
-				align-items: center;
-			}
-
-			.message h1 {
-				font-weight: 400;
-				font-size: 1em;
-				margin: 0;
-			}
-
-			@media (prefers-color-scheme: dark) {
-				body {
-					--bg: #222;
-					--fg: #ddd;
-					--divider: #666;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<div class="error">
-			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
-  },
-  version_hash: "12lvt9e"
-};
-async function get_hooks() {
-  let handle;
-  let handleFetch;
-  let handleError;
-  let init;
-  let reroute;
-  let transport;
-  return {
-    handle,
-    handleFetch,
-    handleError,
-    init,
-    reroute,
-    transport
-  };
-}
-
-/** @type {Record<string, string>} */
-const escaped = {
-	'<': '\\u003C',
-	'\\': '\\\\',
-	'\b': '\\b',
-	'\f': '\\f',
-	'\n': '\\n',
-	'\r': '\\r',
-	'\t': '\\t',
-	'\u2028': '\\u2028',
-	'\u2029': '\\u2029'
-};
-
-class DevalueError extends Error {
-	/**
-	 * @param {string} message
-	 * @param {string[]} keys
-	 */
-	constructor(message, keys) {
-		super(message);
-		this.name = 'DevalueError';
-		this.path = keys.join('');
-	}
-}
-
-/** @param {any} thing */
-function is_primitive(thing) {
-	return Object(thing) !== thing;
-}
-
-const object_proto_names = /* @__PURE__ */ Object.getOwnPropertyNames(
-	Object.prototype
-)
-	.sort()
-	.join('\0');
-
-/** @param {any} thing */
-function is_plain_object(thing) {
-	const proto = Object.getPrototypeOf(thing);
-
-	return (
-		proto === Object.prototype ||
-		proto === null ||
-		Object.getOwnPropertyNames(proto).sort().join('\0') === object_proto_names
-	);
-}
-
-/** @param {any} thing */
-function get_type(thing) {
-	return Object.prototype.toString.call(thing).slice(8, -1);
-}
-
-/** @param {string} char */
-function get_escaped_char(char) {
-	switch (char) {
-		case '"':
-			return '\\"';
-		case '<':
-			return '\\u003C';
-		case '\\':
-			return '\\\\';
-		case '\n':
-			return '\\n';
-		case '\r':
-			return '\\r';
-		case '\t':
-			return '\\t';
-		case '\b':
-			return '\\b';
-		case '\f':
-			return '\\f';
-		case '\u2028':
-			return '\\u2028';
-		case '\u2029':
-			return '\\u2029';
-		default:
-			return char < ' '
-				? `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`
-				: '';
-	}
-}
-
-/** @param {string} str */
-function stringify_string(str) {
-	let result = '';
-	let last_pos = 0;
-	const len = str.length;
-
-	for (let i = 0; i < len; i += 1) {
-		const char = str[i];
-		const replacement = get_escaped_char(char);
-		if (replacement) {
-			result += str.slice(last_pos, i) + replacement;
-			last_pos = i + 1;
-		}
-	}
-
-	return `"${last_pos === 0 ? str : result + str.slice(last_pos)}"`;
-}
-
-/** @param {Record<string | symbol, any>} object */
-function enumerable_symbols(object) {
-	return Object.getOwnPropertySymbols(object).filter(
-		(symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable
-	);
-}
-
-const is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
-
-/** @param {string} key */
-function stringify_key(key) {
-	return is_identifier.test(key) ? '.' + key : '[' + JSON.stringify(key) + ']';
-}
-
-const chars$1 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$';
-const unsafe_chars = /[<\b\f\n\r\t\0\u2028\u2029]/g;
-const reserved =
-	/^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
-
-/**
- * Turn a value into the JavaScript that creates an equivalent value
- * @param {any} value
- * @param {(value: any) => string | void} [replacer]
- */
-function uneval(value, replacer) {
-	const counts = new Map();
-
-	/** @type {string[]} */
-	const keys = [];
-
-	const custom = new Map();
-
-	/** @param {any} thing */
-	function walk(thing) {
-		if (typeof thing === 'function') {
-			throw new DevalueError(`Cannot stringify a function`, keys);
-		}
-
-		if (!is_primitive(thing)) {
-			if (counts.has(thing)) {
-				counts.set(thing, counts.get(thing) + 1);
-				return;
-			}
-
-			counts.set(thing, 1);
-
-			if (replacer) {
-				const str = replacer(thing);
-
-				if (typeof str === 'string') {
-					custom.set(thing, str);
-					return;
-				}
-			}
-
-			const type = get_type(thing);
-
-			switch (type) {
-				case 'Number':
-				case 'BigInt':
-				case 'String':
-				case 'Boolean':
-				case 'Date':
-				case 'RegExp':
-					return;
-
-				case 'Array':
-					/** @type {any[]} */ (thing).forEach((value, i) => {
-						keys.push(`[${i}]`);
-						walk(value);
-						keys.pop();
-					});
-					break;
-
-				case 'Set':
-					Array.from(thing).forEach(walk);
-					break;
-
-				case 'Map':
-					for (const [key, value] of thing) {
-						keys.push(
-							`.get(${is_primitive(key) ? stringify_primitive$1(key) : '...'})`
-						);
-						walk(value);
-						keys.pop();
-					}
-					break;
-				
-				case "Int8Array":
-				case "Uint8Array":
-				case "Uint8ClampedArray":
-				case "Int16Array":
-				case "Uint16Array":
-				case "Int32Array":
-				case "Uint32Array":
-				case "Float32Array":
-				case "Float64Array":
-				case "BigInt64Array":
-				case "BigUint64Array":
-					return;
-				
-				case "ArrayBuffer":
-					return;
-
-				default:
-					if (!is_plain_object(thing)) {
-						throw new DevalueError(
-							`Cannot stringify arbitrary non-POJOs`,
-							keys
-						);
-					}
-
-					if (enumerable_symbols(thing).length > 0) {
-						throw new DevalueError(
-							`Cannot stringify POJOs with symbolic keys`,
-							keys
-						);
-					}
-
-					for (const key in thing) {
-						keys.push(stringify_key(key));
-						walk(thing[key]);
-						keys.pop();
-					}
-			}
-		}
-	}
-
-	walk(value);
-
-	const names = new Map();
-
-	Array.from(counts)
-		.filter((entry) => entry[1] > 1)
-		.sort((a, b) => b[1] - a[1])
-		.forEach((entry, i) => {
-			names.set(entry[0], get_name(i));
-		});
-
-	/**
-	 * @param {any} thing
-	 * @returns {string}
-	 */
-	function stringify(thing) {
-		if (names.has(thing)) {
-			return names.get(thing);
-		}
-
-		if (is_primitive(thing)) {
-			return stringify_primitive$1(thing);
-		}
-
-		if (custom.has(thing)) {
-			return custom.get(thing);
-		}
-
-		const type = get_type(thing);
-
-		switch (type) {
-			case 'Number':
-			case 'String':
-			case 'Boolean':
-				return `Object(${stringify(thing.valueOf())})`;
-
-			case 'RegExp':
-				return `new RegExp(${stringify_string(thing.source)}, "${
-					thing.flags
-				}")`;
-
-			case 'Date':
-				return `new Date(${thing.getTime()})`;
-
-			case 'Array':
-				const members = /** @type {any[]} */ (thing).map((v, i) =>
-					i in thing ? stringify(v) : ''
-				);
-				const tail = thing.length === 0 || thing.length - 1 in thing ? '' : ',';
-				return `[${members.join(',')}${tail}]`;
-
-			case 'Set':
-			case 'Map':
-				return `new ${type}([${Array.from(thing).map(stringify).join(',')}])`;
-			
-			case "Int8Array":
-			case "Uint8Array":
-			case "Uint8ClampedArray":
-			case "Int16Array":
-			case "Uint16Array":
-			case "Int32Array":
-			case "Uint32Array":
-			case "Float32Array":
-			case "Float64Array":
-			case "BigInt64Array":
-			case "BigUint64Array": {
-				/** @type {import("./types.js").TypedArray} */
-				const typedArray = thing;
-				return `new ${type}([${typedArray.toString()}])`;
-			}
-				
-			case "ArrayBuffer": {
-				const ui8 = new Uint8Array(thing);
-				return `new Uint8Array([${ui8.toString()}]).buffer`;
-			}
-
-			default:
-				const obj = `{${Object.keys(thing)
-					.map((key) => `${safe_key(key)}:${stringify(thing[key])}`)
-					.join(',')}}`;
-				const proto = Object.getPrototypeOf(thing);
-				if (proto === null) {
-					return Object.keys(thing).length > 0
-						? `Object.assign(Object.create(null),${obj})`
-						: `Object.create(null)`;
-				}
-
-				return obj;
-		}
-	}
-
-	const str = stringify(value);
-
-	if (names.size) {
-		/** @type {string[]} */
-		const params = [];
-
-		/** @type {string[]} */
-		const statements = [];
-
-		/** @type {string[]} */
-		const values = [];
-
-		names.forEach((name, thing) => {
-			params.push(name);
-
-			if (custom.has(thing)) {
-				values.push(/** @type {string} */ (custom.get(thing)));
-				return;
-			}
-
-			if (is_primitive(thing)) {
-				values.push(stringify_primitive$1(thing));
-				return;
-			}
-
-			const type = get_type(thing);
-
-			switch (type) {
-				case 'Number':
-				case 'String':
-				case 'Boolean':
-					values.push(`Object(${stringify(thing.valueOf())})`);
-					break;
-
-				case 'RegExp':
-					values.push(thing.toString());
-					break;
-
-				case 'Date':
-					values.push(`new Date(${thing.getTime()})`);
-					break;
-
-				case 'Array':
-					values.push(`Array(${thing.length})`);
-					/** @type {any[]} */ (thing).forEach((v, i) => {
-						statements.push(`${name}[${i}]=${stringify(v)}`);
-					});
-					break;
-
-				case 'Set':
-					values.push(`new Set`);
-					statements.push(
-						`${name}.${Array.from(thing)
-							.map((v) => `add(${stringify(v)})`)
-							.join('.')}`
-					);
-					break;
-
-				case 'Map':
-					values.push(`new Map`);
-					statements.push(
-						`${name}.${Array.from(thing)
-							.map(([k, v]) => `set(${stringify(k)}, ${stringify(v)})`)
-							.join('.')}`
-					);
-					break;
-
-				default:
-					values.push(
-						Object.getPrototypeOf(thing) === null ? 'Object.create(null)' : '{}'
-					);
-					Object.keys(thing).forEach((key) => {
-						statements.push(
-							`${name}${safe_prop(key)}=${stringify(thing[key])}`
-						);
-					});
-			}
-		});
-
-		statements.push(`return ${str}`);
-
-		return `(function(${params.join(',')}){${statements.join(
-			';'
-		)}}(${values.join(',')}))`;
-	} else {
-		return str;
-	}
-}
-
-/** @param {number} num */
-function get_name(num) {
-	let name = '';
-
-	do {
-		name = chars$1[num % chars$1.length] + name;
-		num = ~~(num / chars$1.length) - 1;
-	} while (num >= 0);
-
-	return reserved.test(name) ? `${name}0` : name;
-}
-
-/** @param {string} c */
-function escape_unsafe_char(c) {
-	return escaped[c] || c;
-}
-
-/** @param {string} str */
-function escape_unsafe_chars(str) {
-	return str.replace(unsafe_chars, escape_unsafe_char);
-}
-
-/** @param {string} key */
-function safe_key(key) {
-	return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key)
-		? key
-		: escape_unsafe_chars(JSON.stringify(key));
-}
-
-/** @param {string} key */
-function safe_prop(key) {
-	return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key)
-		? `.${key}`
-		: `[${escape_unsafe_chars(JSON.stringify(key))}]`;
-}
-
-/** @param {any} thing */
-function stringify_primitive$1(thing) {
-	if (typeof thing === 'string') return stringify_string(thing);
-	if (thing === void 0) return 'void 0';
-	if (thing === 0 && 1 / thing < 0) return '-0';
-	const str = String(thing);
-	if (typeof thing === 'number') return str.replace(/^(-)?0\./, '$1.');
-	if (typeof thing === 'bigint') return thing + 'n';
-	return str;
-}
-
-/**
- * Base64 Encodes an arraybuffer
- * @param {ArrayBuffer} arraybuffer
- * @returns {string}
- */
-function encode64(arraybuffer) {
-  const dv = new DataView(arraybuffer);
-  let binaryString = "";
-
-  for (let i = 0; i < arraybuffer.byteLength; i++) {
-    binaryString += String.fromCharCode(dv.getUint8(i));
-  }
-
-  return binaryToAscii(binaryString);
-}
-
-const KEY_STRING =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-/**
- * Substitute for btoa since it's deprecated in node.
- * Does not do any input validation.
- *
- * @see https://github.com/jsdom/abab/blob/master/lib/btoa.js
- *
- * @param {string} str
- * @returns {string}
- */
-function binaryToAscii(str) {
-  let out = "";
-  for (let i = 0; i < str.length; i += 3) {
-    /** @type {[number, number, number, number]} */
-    const groupsOfSix = [undefined, undefined, undefined, undefined];
-    groupsOfSix[0] = str.charCodeAt(i) >> 2;
-    groupsOfSix[1] = (str.charCodeAt(i) & 0x03) << 4;
-    if (str.length > i + 1) {
-      groupsOfSix[1] |= str.charCodeAt(i + 1) >> 4;
-      groupsOfSix[2] = (str.charCodeAt(i + 1) & 0x0f) << 2;
-    }
-    if (str.length > i + 2) {
-      groupsOfSix[2] |= str.charCodeAt(i + 2) >> 6;
-      groupsOfSix[3] = str.charCodeAt(i + 2) & 0x3f;
-    }
-    for (let j = 0; j < groupsOfSix.length; j++) {
-      if (typeof groupsOfSix[j] === "undefined") {
-        out += "=";
-      } else {
-        out += KEY_STRING[groupsOfSix[j]];
-      }
-    }
-  }
-  return out;
-}
-
-const UNDEFINED = -1;
-const HOLE = -2;
-const NAN = -3;
-const POSITIVE_INFINITY = -4;
-const NEGATIVE_INFINITY = -5;
-const NEGATIVE_ZERO = -6;
-
-/**
- * Turn a value into a JSON string that can be parsed with `devalue.parse`
- * @param {any} value
- * @param {Record<string, (value: any) => any>} [reducers]
- */
-function stringify(value, reducers) {
-	/** @type {any[]} */
-	const stringified = [];
-
-	/** @type {Map<any, number>} */
-	const indexes = new Map();
-
-	/** @type {Array<{ key: string, fn: (value: any) => any }>} */
-	const custom = [];
-	if (reducers) {
-		for (const key of Object.getOwnPropertyNames(reducers)) {
-			custom.push({ key, fn: reducers[key] });
-		}
-	}
-
-	/** @type {string[]} */
-	const keys = [];
-
-	let p = 0;
-
-	/** @param {any} thing */
-	function flatten(thing) {
-		if (typeof thing === 'function') {
-			throw new DevalueError(`Cannot stringify a function`, keys);
-		}
-
-		if (indexes.has(thing)) return indexes.get(thing);
-
-		if (thing === undefined) return UNDEFINED;
-		if (Number.isNaN(thing)) return NAN;
-		if (thing === Infinity) return POSITIVE_INFINITY;
-		if (thing === -Infinity) return NEGATIVE_INFINITY;
-		if (thing === 0 && 1 / thing < 0) return NEGATIVE_ZERO;
-
-		const index = p++;
-		indexes.set(thing, index);
-
-		for (const { key, fn } of custom) {
-			const value = fn(thing);
-			if (value) {
-				stringified[index] = `["${key}",${flatten(value)}]`;
-				return index;
-			}
-		}
-
-		let str = '';
-
-		if (is_primitive(thing)) {
-			str = stringify_primitive(thing);
-		} else {
-			const type = get_type(thing);
-
-			switch (type) {
-				case 'Number':
-				case 'String':
-				case 'Boolean':
-					str = `["Object",${stringify_primitive(thing)}]`;
-					break;
-
-				case 'BigInt':
-					str = `["BigInt",${thing}]`;
-					break;
-
-				case 'Date':
-					const valid = !isNaN(thing.getDate());
-					str = `["Date","${valid ? thing.toISOString() : ''}"]`;
-					break;
-
-				case 'RegExp':
-					const { source, flags } = thing;
-					str = flags
-						? `["RegExp",${stringify_string(source)},"${flags}"]`
-						: `["RegExp",${stringify_string(source)}]`;
-					break;
-
-				case 'Array':
-					str = '[';
-
-					for (let i = 0; i < thing.length; i += 1) {
-						if (i > 0) str += ',';
-
-						if (i in thing) {
-							keys.push(`[${i}]`);
-							str += flatten(thing[i]);
-							keys.pop();
-						} else {
-							str += HOLE;
-						}
-					}
-
-					str += ']';
-
-					break;
-
-				case 'Set':
-					str = '["Set"';
-
-					for (const value of thing) {
-						str += `,${flatten(value)}`;
-					}
-
-					str += ']';
-					break;
-
-				case 'Map':
-					str = '["Map"';
-
-					for (const [key, value] of thing) {
-						keys.push(
-							`.get(${is_primitive(key) ? stringify_primitive(key) : '...'})`
-						);
-						str += `,${flatten(key)},${flatten(value)}`;
-						keys.pop();
-					}
-
-					str += ']';
-					break;
-
-				case "Int8Array":
-				case "Uint8Array":
-				case "Uint8ClampedArray":
-				case "Int16Array":
-				case "Uint16Array":
-				case "Int32Array":
-				case "Uint32Array":
-				case "Float32Array":
-				case "Float64Array":
-				case "BigInt64Array":
-				case "BigUint64Array": {
-					/** @type {import("./types.js").TypedArray} */
-					const typedArray = thing;
-					const base64 = encode64(typedArray.buffer);
-					str = '["' + type + '","' + base64 + '"]';
-					break;
-				}
-					
-				case "ArrayBuffer": {
-					/** @type {ArrayBuffer} */
-					const arraybuffer = thing;
-					const base64 = encode64(arraybuffer);
-					
-					str = `["ArrayBuffer","${base64}"]`;
-					break;
-				}
-				
-				default:
-					if (!is_plain_object(thing)) {
-						throw new DevalueError(
-							`Cannot stringify arbitrary non-POJOs`,
-							keys
-						);
-					}
-
-					if (enumerable_symbols(thing).length > 0) {
-						throw new DevalueError(
-							`Cannot stringify POJOs with symbolic keys`,
-							keys
-						);
-					}
-
-					if (Object.getPrototypeOf(thing) === null) {
-						str = '["null"';
-						for (const key in thing) {
-							keys.push(stringify_key(key));
-							str += `,${stringify_string(key)},${flatten(thing[key])}`;
-							keys.pop();
-						}
-						str += ']';
-					} else {
-						str = '{';
-						let started = false;
-						for (const key in thing) {
-							if (started) str += ',';
-							started = true;
-							keys.push(stringify_key(key));
-							str += `${stringify_string(key)}:${flatten(thing[key])}`;
-							keys.pop();
-						}
-						str += '}';
-					}
-			}
-		}
-
-		stringified[index] = str;
-		return index;
-	}
-
-	const index = flatten(value);
-
-	// special case — value is represented as a negative index
-	if (index < 0) return `${index}`;
-
-	return `[${stringified.join(',')}]`;
-}
-
-/**
- * @param {any} thing
- * @returns {string}
- */
-function stringify_primitive(thing) {
-	const type = typeof thing;
-	if (type === 'string') return stringify_string(thing);
-	if (thing instanceof String) return stringify_string(thing.toString());
-	if (thing === void 0) return UNDEFINED.toString();
-	if (thing === 0 && 1 / thing < 0) return NEGATIVE_ZERO.toString();
-	if (type === 'bigint') return `["BigInt","${thing}"]`;
-	return String(thing);
-}
-
-var cookie = {};
-
-/*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-
-var hasRequiredCookie;
-
-function requireCookie () {
-	if (hasRequiredCookie) return cookie;
-	hasRequiredCookie = 1;
-
-	/**
-	 * Module exports.
-	 * @public
-	 */
-
-	cookie.parse = parse;
-	cookie.serialize = serialize;
-
-	/**
-	 * Module variables.
-	 * @private
-	 */
-
-	var __toString = Object.prototype.toString;
-
-	/**
-	 * RegExp to match field-content in RFC 7230 sec 3.2
-	 *
-	 * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
-	 * field-vchar   = VCHAR / obs-text
-	 * obs-text      = %x80-FF
-	 */
-
-	var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-
-	/**
-	 * Parse a cookie header.
-	 *
-	 * Parse the given cookie header string into an object
-	 * The object has the various cookies as keys(names) => values
-	 *
-	 * @param {string} str
-	 * @param {object} [options]
-	 * @return {object}
-	 * @public
-	 */
-
-	function parse(str, options) {
-	  if (typeof str !== 'string') {
-	    throw new TypeError('argument str must be a string');
-	  }
-
-	  var obj = {};
-	  var opt = options || {};
-	  var dec = opt.decode || decode;
-
-	  var index = 0;
-	  while (index < str.length) {
-	    var eqIdx = str.indexOf('=', index);
-
-	    // no more cookie pairs
-	    if (eqIdx === -1) {
-	      break
-	    }
-
-	    var endIdx = str.indexOf(';', index);
-
-	    if (endIdx === -1) {
-	      endIdx = str.length;
-	    } else if (endIdx < eqIdx) {
-	      // backtrack on prior semicolon
-	      index = str.lastIndexOf(';', eqIdx - 1) + 1;
-	      continue
-	    }
-
-	    var key = str.slice(index, eqIdx).trim();
-
-	    // only assign once
-	    if (undefined === obj[key]) {
-	      var val = str.slice(eqIdx + 1, endIdx).trim();
-
-	      // quoted values
-	      if (val.charCodeAt(0) === 0x22) {
-	        val = val.slice(1, -1);
-	      }
-
-	      obj[key] = tryDecode(val, dec);
-	    }
-
-	    index = endIdx + 1;
-	  }
-
-	  return obj;
-	}
-
-	/**
-	 * Serialize data into a cookie header.
-	 *
-	 * Serialize the a name value pair into a cookie string suitable for
-	 * http headers. An optional options object specified cookie parameters.
-	 *
-	 * serialize('foo', 'bar', { httpOnly: true })
-	 *   => "foo=bar; httpOnly"
-	 *
-	 * @param {string} name
-	 * @param {string} val
-	 * @param {object} [options]
-	 * @return {string}
-	 * @public
-	 */
-
-	function serialize(name, val, options) {
-	  var opt = options || {};
-	  var enc = opt.encode || encode;
-
-	  if (typeof enc !== 'function') {
-	    throw new TypeError('option encode is invalid');
-	  }
-
-	  if (!fieldContentRegExp.test(name)) {
-	    throw new TypeError('argument name is invalid');
-	  }
-
-	  var value = enc(val);
-
-	  if (value && !fieldContentRegExp.test(value)) {
-	    throw new TypeError('argument val is invalid');
-	  }
-
-	  var str = name + '=' + value;
-
-	  if (null != opt.maxAge) {
-	    var maxAge = opt.maxAge - 0;
-
-	    if (isNaN(maxAge) || !isFinite(maxAge)) {
-	      throw new TypeError('option maxAge is invalid')
-	    }
-
-	    str += '; Max-Age=' + Math.floor(maxAge);
-	  }
-
-	  if (opt.domain) {
-	    if (!fieldContentRegExp.test(opt.domain)) {
-	      throw new TypeError('option domain is invalid');
-	    }
-
-	    str += '; Domain=' + opt.domain;
-	  }
-
-	  if (opt.path) {
-	    if (!fieldContentRegExp.test(opt.path)) {
-	      throw new TypeError('option path is invalid');
-	    }
-
-	    str += '; Path=' + opt.path;
-	  }
-
-	  if (opt.expires) {
-	    var expires = opt.expires;
-
-	    if (!isDate(expires) || isNaN(expires.valueOf())) {
-	      throw new TypeError('option expires is invalid');
-	    }
-
-	    str += '; Expires=' + expires.toUTCString();
-	  }
-
-	  if (opt.httpOnly) {
-	    str += '; HttpOnly';
-	  }
-
-	  if (opt.secure) {
-	    str += '; Secure';
-	  }
-
-	  if (opt.partitioned) {
-	    str += '; Partitioned';
-	  }
-
-	  if (opt.priority) {
-	    var priority = typeof opt.priority === 'string'
-	      ? opt.priority.toLowerCase()
-	      : opt.priority;
-
-	    switch (priority) {
-	      case 'low':
-	        str += '; Priority=Low';
-	        break
-	      case 'medium':
-	        str += '; Priority=Medium';
-	        break
-	      case 'high':
-	        str += '; Priority=High';
-	        break
-	      default:
-	        throw new TypeError('option priority is invalid')
-	    }
-	  }
-
-	  if (opt.sameSite) {
-	    var sameSite = typeof opt.sameSite === 'string'
-	      ? opt.sameSite.toLowerCase() : opt.sameSite;
-
-	    switch (sameSite) {
-	      case true:
-	        str += '; SameSite=Strict';
-	        break;
-	      case 'lax':
-	        str += '; SameSite=Lax';
-	        break;
-	      case 'strict':
-	        str += '; SameSite=Strict';
-	        break;
-	      case 'none':
-	        str += '; SameSite=None';
-	        break;
-	      default:
-	        throw new TypeError('option sameSite is invalid');
-	    }
-	  }
-
-	  return str;
-	}
-
-	/**
-	 * URL-decode string value. Optimized to skip native call when no %.
-	 *
-	 * @param {string} str
-	 * @returns {string}
-	 */
-
-	function decode (str) {
-	  return str.indexOf('%') !== -1
-	    ? decodeURIComponent(str)
-	    : str
-	}
-
-	/**
-	 * URL-encode value.
-	 *
-	 * @param {string} val
-	 * @returns {string}
-	 */
-
-	function encode (val) {
-	  return encodeURIComponent(val)
-	}
-
-	/**
-	 * Determine if value is a Date.
-	 *
-	 * @param {*} val
-	 * @private
-	 */
-
-	function isDate (val) {
-	  return __toString.call(val) === '[object Date]' ||
-	    val instanceof Date
-	}
-
-	/**
-	 * Try decoding a string using a decoding function.
-	 *
-	 * @param {string} str
-	 * @param {function} decode
-	 * @private
-	 */
-
-	function tryDecode(str, decode) {
-	  try {
-	    return decode(str);
-	  } catch (e) {
-	    return str;
-	  }
-	}
-	return cookie;
-}
-
-var cookieExports = requireCookie();
-
-var setCookie = {exports: {}};
-
-var hasRequiredSetCookie;
-
-function requireSetCookie () {
-	if (hasRequiredSetCookie) return setCookie.exports;
-	hasRequiredSetCookie = 1;
-
-	var defaultParseOptions = {
-	  decodeValues: true,
-	  map: false,
-	  silent: false,
-	};
-
-	function isNonEmptyString(str) {
-	  return typeof str === "string" && !!str.trim();
-	}
-
-	function parseString(setCookieValue, options) {
-	  var parts = setCookieValue.split(";").filter(isNonEmptyString);
-
-	  var nameValuePairStr = parts.shift();
-	  var parsed = parseNameValuePair(nameValuePairStr);
-	  var name = parsed.name;
-	  var value = parsed.value;
-
-	  options = options
-	    ? Object.assign({}, defaultParseOptions, options)
-	    : defaultParseOptions;
-
-	  try {
-	    value = options.decodeValues ? decodeURIComponent(value) : value; // decode cookie value
-	  } catch (e) {
-	    console.error(
-	      "set-cookie-parser encountered an error while decoding a cookie with value '" +
-	        value +
-	        "'. Set options.decodeValues to false to disable this feature.",
-	      e
-	    );
-	  }
-
-	  var cookie = {
-	    name: name,
-	    value: value,
-	  };
-
-	  parts.forEach(function (part) {
-	    var sides = part.split("=");
-	    var key = sides.shift().trimLeft().toLowerCase();
-	    var value = sides.join("=");
-	    if (key === "expires") {
-	      cookie.expires = new Date(value);
-	    } else if (key === "max-age") {
-	      cookie.maxAge = parseInt(value, 10);
-	    } else if (key === "secure") {
-	      cookie.secure = true;
-	    } else if (key === "httponly") {
-	      cookie.httpOnly = true;
-	    } else if (key === "samesite") {
-	      cookie.sameSite = value;
-	    } else {
-	      cookie[key] = value;
-	    }
-	  });
-
-	  return cookie;
-	}
-
-	function parseNameValuePair(nameValuePairStr) {
-	  // Parses name-value-pair according to rfc6265bis draft
-
-	  var name = "";
-	  var value = "";
-	  var nameValueArr = nameValuePairStr.split("=");
-	  if (nameValueArr.length > 1) {
-	    name = nameValueArr.shift();
-	    value = nameValueArr.join("="); // everything after the first =, joined by a "=" if there was more than one part
-	  } else {
-	    value = nameValuePairStr;
-	  }
-
-	  return { name: name, value: value };
-	}
-
-	function parse(input, options) {
-	  options = options
-	    ? Object.assign({}, defaultParseOptions, options)
-	    : defaultParseOptions;
-
-	  if (!input) {
-	    if (!options.map) {
-	      return [];
-	    } else {
-	      return {};
-	    }
-	  }
-
-	  if (input.headers) {
-	    if (typeof input.headers.getSetCookie === "function") {
-	      // for fetch responses - they combine headers of the same type in the headers array,
-	      // but getSetCookie returns an uncombined array
-	      input = input.headers.getSetCookie();
-	    } else if (input.headers["set-cookie"]) {
-	      // fast-path for node.js (which automatically normalizes header names to lower-case
-	      input = input.headers["set-cookie"];
-	    } else {
-	      // slow-path for other environments - see #25
-	      var sch =
-	        input.headers[
-	          Object.keys(input.headers).find(function (key) {
-	            return key.toLowerCase() === "set-cookie";
-	          })
-	        ];
-	      // warn if called on a request-like object with a cookie header rather than a set-cookie header - see #34, 36
-	      if (!sch && input.headers.cookie && !options.silent) {
-	        console.warn(
-	          "Warning: set-cookie-parser appears to have been called on a request object. It is designed to parse Set-Cookie headers from responses, not Cookie headers from requests. Set the option {silent: true} to suppress this warning."
-	        );
-	      }
-	      input = sch;
-	    }
-	  }
-	  if (!Array.isArray(input)) {
-	    input = [input];
-	  }
-
-	  options = options
-	    ? Object.assign({}, defaultParseOptions, options)
-	    : defaultParseOptions;
-
-	  if (!options.map) {
-	    return input.filter(isNonEmptyString).map(function (str) {
-	      return parseString(str, options);
-	    });
-	  } else {
-	    var cookies = {};
-	    return input.filter(isNonEmptyString).reduce(function (cookies, str) {
-	      var cookie = parseString(str, options);
-	      cookies[cookie.name] = cookie;
-	      return cookies;
-	    }, cookies);
-	  }
-	}
-
-	/*
-	  Set-Cookie header field-values are sometimes comma joined in one string. This splits them without choking on commas
-	  that are within a single set-cookie field-value, such as in the Expires portion.
-
-	  This is uncommon, but explicitly allowed - see https://tools.ietf.org/html/rfc2616#section-4.2
-	  Node.js does this for every header *except* set-cookie - see https://github.com/nodejs/node/blob/d5e363b77ebaf1caf67cd7528224b651c86815c1/lib/_http_incoming.js#L128
-	  React Native's fetch does this for *every* header, including set-cookie.
-
-	  Based on: https://github.com/google/j2objc/commit/16820fdbc8f76ca0c33472810ce0cb03d20efe25
-	  Credits to: https://github.com/tomball for original and https://github.com/chrusart for JavaScript implementation
-	*/
-	function splitCookiesString(cookiesString) {
-	  if (Array.isArray(cookiesString)) {
-	    return cookiesString;
-	  }
-	  if (typeof cookiesString !== "string") {
-	    return [];
-	  }
-
-	  var cookiesStrings = [];
-	  var pos = 0;
-	  var start;
-	  var ch;
-	  var lastComma;
-	  var nextStart;
-	  var cookiesSeparatorFound;
-
-	  function skipWhitespace() {
-	    while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) {
-	      pos += 1;
-	    }
-	    return pos < cookiesString.length;
-	  }
-
-	  function notSpecialChar() {
-	    ch = cookiesString.charAt(pos);
-
-	    return ch !== "=" && ch !== ";" && ch !== ",";
-	  }
-
-	  while (pos < cookiesString.length) {
-	    start = pos;
-	    cookiesSeparatorFound = false;
-
-	    while (skipWhitespace()) {
-	      ch = cookiesString.charAt(pos);
-	      if (ch === ",") {
-	        // ',' is a cookie separator if we have later first '=', not ';' or ','
-	        lastComma = pos;
-	        pos += 1;
-
-	        skipWhitespace();
-	        nextStart = pos;
-
-	        while (pos < cookiesString.length && notSpecialChar()) {
-	          pos += 1;
-	        }
-
-	        // currently special character
-	        if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
-	          // we found cookies separator
-	          cookiesSeparatorFound = true;
-	          // pos is inside the next cookie, so back up and return it.
-	          pos = nextStart;
-	          cookiesStrings.push(cookiesString.substring(start, lastComma));
-	          start = pos;
-	        } else {
-	          // in param ',' or param separator ';',
-	          // we continue from that comma
-	          pos = lastComma + 1;
-	        }
-	      } else {
-	        pos += 1;
-	      }
-	    }
-
-	    if (!cookiesSeparatorFound || pos >= cookiesString.length) {
-	      cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
-	    }
-	  }
-
-	  return cookiesStrings;
-	}
-
-	setCookie.exports = parse;
-	setCookie.exports.parse = parse;
-	setCookie.exports.parseString = parseString;
-	setCookie.exports.splitCookiesString = splitCookiesString;
-	return setCookie.exports;
-}
-
-var setCookieExports = requireSetCookie();
-
+import { json, text } from "@sveltejs/kit";
+import { HttpError, SvelteKitError, Redirect, ActionFailure } from "@sveltejs/kit/internal";
+import { a as assets, b as base, c as app_dir, p as public_env, s as safe_public_env, o as override, r as reset, d as read_implementation, e as options, g as get_hooks, f as set_private_env, h as prerendering, i as set_public_env, j as set_safe_public_env, k as set_read_implementation } from "./chunks/internal.js";
+import * as devalue from "devalue";
+import { m as make_trackable, d as disable_search, a as decode_params, v as validate_layout_server_exports, b as validate_layout_exports, c as validate_page_server_exports, e as validate_page_exports, n as normalize_path, r as resolve, f as decode_pathname, g as validate_server_exports } from "./chunks/exports.js";
+import { n as noop, s as safe_not_equal } from "./chunks/ssr.js";
+import { parse, serialize } from "cookie";
+import * as set_cookie_parser from "set-cookie-parser";
 const BROWSER = false;
 const SVELTE_KIT_ASSETS = "/_svelte_kit_assets";
 const ENDPOINT_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
@@ -1635,7 +59,7 @@ function is_form_content_type(request) {
 }
 let request_event = null;
 let als;
-import('node:async_hooks').then((hooks) => als = new hooks.AsyncLocalStorage()).catch(() => {
+import("node:async_hooks").then((hooks) => als = new hooks.AsyncLocalStorage()).catch(() => {
 });
 function with_event(event, fn) {
   try {
@@ -2065,22 +489,30 @@ async function call_action(event, actions) {
   }
   return with_event(event, () => action(event));
 }
+function validate_action_return(data) {
+  if (data instanceof Redirect) {
+    throw new Error("Cannot `return redirect(...)` — use `redirect(...)` instead");
+  }
+  if (data instanceof HttpError) {
+    throw new Error("Cannot `return error(...)` — use `error(...)` or `return fail(...)` instead");
+  }
+}
 function uneval_action_response(data, route_id, transport) {
   const replacer = (thing) => {
     for (const key2 in transport) {
       const encoded = transport[key2].encode(thing);
       if (encoded) {
-        return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
+        return `app.decode('${key2}', ${devalue.uneval(encoded, replacer)})`;
       }
     }
   };
-  return try_serialize(data, (value) => uneval(value, replacer), route_id);
+  return try_serialize(data, (value) => devalue.uneval(value, replacer), route_id);
 }
 function stringify_action_response(data, route_id, transport) {
   const encoders = Object.fromEntries(
     Object.entries(transport).map(([key2, value]) => [key2, value.encode])
   );
-  return try_serialize(data, (value) => stringify(value, encoders), route_id);
+  return try_serialize(data, (value) => devalue.stringify(value, encoders), route_id);
 }
 function try_serialize(data, fn, route_id) {
   try {
@@ -2101,6 +533,14 @@ function try_serialize(data, fn, route_id) {
       throw new Error(message);
     }
     throw error;
+  }
+}
+function validate_depends(route_id, dep) {
+  const match = /^(moz-icon|view-source|jar):/.exec(dep);
+  if (match) {
+    console.warn(
+      `${route_id}: Calling \`depends('${dep}')\` will throw an error in Firefox because \`${match[1]}\` is a special URI scheme`
+    );
   }
 }
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
@@ -3244,7 +1684,7 @@ async function render_response({
         );
       }
       if (error) {
-        serialized.error = uneval(error);
+        serialized.error = devalue.uneval(error);
       }
       const hydrate = [
         `node_ids: [${branch.map(({ node }) => node.index).join(", ")}]`,
@@ -3261,10 +1701,10 @@ async function render_response({
             "\n",
             "\n							"
           );
-          hydrate.push(`params: ${uneval(event.params)}`, `server_route: ${stringified}`);
+          hydrate.push(`params: ${devalue.uneval(event.params)}`, `server_route: ${stringified}`);
         }
       } else if (options2.embedded) {
-        hydrate.push(`params: ${uneval(event.params)}`, `route: ${s(event.route)}`);
+        hydrate.push(`params: ${devalue.uneval(event.params)}`, `route: ${s(event.route)}`);
       }
       const indent = "	".repeat(load_env_eagerly ? 7 : 6);
       args.push(`{
@@ -3399,7 +1839,7 @@ function get_data(event, options2, nodes, csp, global) {
           count -= 1;
           let str;
           try {
-            str = uneval({ id, data, error }, replacer);
+            str = devalue.uneval({ id, data, error }, replacer);
           } catch {
             error = await handle_error_and_jsonify(
               event,
@@ -3407,7 +1847,7 @@ function get_data(event, options2, nodes, csp, global) {
               new Error(`Failed to serialize promise while rendering ${event.route.id}`)
             );
             data = void 0;
-            str = uneval({ id, data, error }, replacer);
+            str = devalue.uneval({ id, data, error }, replacer);
           }
           const nonce = csp.script_needs_nonce ? ` nonce="${csp.nonce}"` : "";
           push(`<script${nonce}>${global}.resolve(${str})<\/script>
@@ -3420,7 +1860,7 @@ function get_data(event, options2, nodes, csp, global) {
       for (const key2 in options2.hooks.transport) {
         const encoded = options2.hooks.transport[key2].encode(thing);
         if (encoded) {
-          return `app.decode('${key2}', ${uneval(encoded, replacer)})`;
+          return `app.decode('${key2}', ${devalue.uneval(encoded, replacer)})`;
         }
       }
     }
@@ -3430,7 +1870,7 @@ function get_data(event, options2, nodes, csp, global) {
       if (!node) return "null";
       const payload = { type: "data", data: node.data, uses: serialize_uses(node) };
       if (node.slash) payload.slash = node.slash;
-      return uneval(payload, replacer);
+      return devalue.uneval(payload, replacer);
     });
     return {
       data: `[${strings.join(",")}]`,
@@ -3786,7 +2226,7 @@ function get_data_json(event, options2, nodes) {
           async (value) => {
             let str;
             try {
-              str = stringify(value, reducers);
+              str = devalue.stringify(value, reducers);
             } catch {
               const error = await handle_error_and_jsonify(
                 event,
@@ -3794,7 +2234,7 @@ function get_data_json(event, options2, nodes) {
                 new Error(`Failed to serialize promise while rendering ${event.route.id}`)
               );
               key2 = "error";
-              str = stringify(error, reducers);
+              str = devalue.stringify(error, reducers);
             }
             count -= 1;
             push(`{"type":"chunk","id":${id},"${key2}":${str}}
@@ -3812,7 +2252,7 @@ function get_data_json(event, options2, nodes) {
       if (node.type === "error" || node.type === "skip") {
         return JSON.stringify(node);
       }
-      return `{"type":"data","data":${stringify(node.data, reducers)},"uses":${JSON.stringify(
+      return `{"type":"data","data":${devalue.stringify(node.data, reducers)},"uses":${JSON.stringify(
         serialize_uses(node)
       )}${node.slash ? `,"slash":${JSON.stringify(node.slash)}` : ""}}`;
     });
@@ -4072,7 +2512,7 @@ function validate_options(options2) {
 }
 function get_cookies(request, url) {
   const header = request.headers.get("cookie") ?? "";
-  const initial_cookies = cookieExports.parse(header, { decode: (value) => value });
+  const initial_cookies = parse(header, { decode: (value) => value });
   let normalized_url;
   const new_cookies = {};
   const defaults = {
@@ -4094,7 +2534,7 @@ function get_cookies(request, url) {
       if (c && domain_matches(url.hostname, c.options.domain) && path_matches(url.pathname, c.options.path)) {
         return c.value;
       }
-      const req_cookies = cookieExports.parse(header, { decode: opts?.decode });
+      const req_cookies = parse(header, { decode: opts?.decode });
       const cookie = req_cookies[name];
       return cookie;
     },
@@ -4102,7 +2542,7 @@ function get_cookies(request, url) {
      * @param {import('cookie').CookieParseOptions} [opts]
      */
     getAll(opts) {
-      const cookies2 = cookieExports.parse(header, { decode: opts?.decode });
+      const cookies2 = parse(header, { decode: opts?.decode });
       for (const c of Object.values(new_cookies)) {
         if (domain_matches(url.hostname, c.options.domain) && path_matches(url.pathname, c.options.path)) {
           cookies2[c.name] = c.value;
@@ -4149,7 +2589,7 @@ function get_cookies(request, url) {
         }
         path = resolve(normalized_url, path);
       }
-      return cookieExports.serialize(name, value, { ...defaults, ...options2, path });
+      return serialize(name, value, { ...defaults, ...options2, path });
     }
   };
   function get_cookie_header(destination, header2) {
@@ -4165,7 +2605,7 @@ function get_cookies(request, url) {
       combined_cookies[cookie.name] = encoder2(cookie.value);
     }
     if (header2) {
-      const parsed = cookieExports.parse(header2, { decode: (value) => value });
+      const parsed = parse(header2, { decode: (value) => value });
       for (const name in parsed) {
         combined_cookies[name] = parsed[name];
       }
@@ -4205,10 +2645,10 @@ function path_matches(path, constraint) {
 function add_cookies_to_headers(headers2, cookies) {
   for (const new_cookie of cookies) {
     const { name, value, options: options2 } = new_cookie;
-    headers2.append("set-cookie", cookieExports.serialize(name, value, options2));
+    headers2.append("set-cookie", serialize(name, value, options2));
     if (options2.path.endsWith(".html")) {
       const path = add_data_suffix(options2.path);
-      headers2.append("set-cookie", cookieExports.serialize(name, value, { ...options2, path }));
+      headers2.append("set-cookie", serialize(name, value, { ...options2, path }));
     }
   }
 }
@@ -4291,8 +2731,8 @@ function create_fetch({ event, options: options2, manifest, state, get_cookie_he
         const response = await internal_fetch(request, options2, manifest, state);
         const set_cookie = response.headers.get("set-cookie");
         if (set_cookie) {
-          for (const str of setCookieExports.splitCookiesString(set_cookie)) {
-            const { name, value, ...options3 } = setCookieExports.parseString(str, {
+          for (const str of set_cookie_parser.splitCookiesString(set_cookie)) {
+            const { name, value, ...options3 } = set_cookie_parser.parseString(str, {
               decodeValues: false
             });
             const path = options3.path ?? (url.pathname.split("/").slice(0, -1).join("/") || "/");
@@ -4371,6 +2811,7 @@ const default_filter = () => false;
 const default_preload = ({ type }) => type === "js" || type === "css";
 const page_methods = /* @__PURE__ */ new Set(["GET", "HEAD", "POST"]);
 const allowed_page_methods = /* @__PURE__ */ new Set(["GET", "HEAD", "OPTIONS"]);
+let warned_on_devtools_json_request = false;
 async function respond(request, options2, manifest, state) {
   const url = new URL(request.url);
   if (options2.csrf_check_origin) {
@@ -4808,6 +3249,13 @@ function filter_public_env(env, { public_prefix, private_prefix }) {
 }
 function set_app(value) {
 }
+const prerender_env_handler = {
+  get({ type }, prop) {
+    throw new Error(
+      `Cannot read values from $env/dynamic/${type} while prerendering (attempted to read env.${prop.toString()}). Use $env/static/${type} instead`
+    );
+  }
+};
 let init_promise;
 class Server {
   /** @type {import('types').SSROptions} */
@@ -4830,10 +3278,13 @@ class Server {
       public_prefix: this.#options.env_public_prefix,
       private_prefix: this.#options.env_private_prefix
     };
-    filter_private_env(env, prefixes);
+    const private_env = filter_private_env(env, prefixes);
     const public_env2 = filter_public_env(env, prefixes);
+    set_private_env(
+      prerendering ? new Proxy({ type: "private" }, prerender_env_handler) : private_env
+    );
     set_public_env(
-      public_env2
+      prerendering ? new Proxy({ type: "public" }, prerender_env_handler) : public_env2
     );
     set_safe_public_env(public_env2);
     if (read) {
@@ -4876,6 +3327,6 @@ class Server {
     });
   }
 }
-
-export { Server };
-//# sourceMappingURL=index.js.map
+export {
+  Server
+};

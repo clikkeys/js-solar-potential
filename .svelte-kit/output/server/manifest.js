@@ -1,4 +1,4 @@
-const manifest = (() => {
+export const manifest = (() => {
 function __memo(fn) {
 	let value;
 	return () => value ??= (value = fn());
@@ -12,8 +12,8 @@ return {
 	_: {
 		client: {start:"_app/immutable/entry/start.DTtOZNxY.js",app:"_app/immutable/entry/app.CkWqRDYu.js",imports:["_app/immutable/entry/start.DTtOZNxY.js","_app/immutable/chunks/CdC-aV5g.js","_app/immutable/chunks/D9tbz5hf.js","_app/immutable/entry/app.CkWqRDYu.js","_app/immutable/chunks/C1FmrZbK.js","_app/immutable/chunks/D9tbz5hf.js","_app/immutable/chunks/IHki7fMi.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
-			__memo(() => import('./chunks/0-B3vvBEjS.js')),
-			__memo(() => import('./chunks/1-B_w6filu.js'))
+			__memo(() => import('./nodes/0.js')),
+			__memo(() => import('./nodes/1.js'))
 		],
 		routes: [
 			
@@ -27,8 +27,3 @@ return {
 	}
 }
 })();
-
-const prerendered = new Set(["/"]);
-
-export { manifest, prerendered };
-//# sourceMappingURL=manifest.js.map
