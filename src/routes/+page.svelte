@@ -33,6 +33,7 @@
   };
 
   let address = '';
+  let addressParam = '';
   $: addressParam = $page.url.searchParams.get('address');
 
   let location: google.maps.LatLng | undefined;
@@ -120,8 +121,8 @@
         />
       {/if}
 
-      <input bind:value={address} placeholder="Enter address" />
-      <button on:click={() => searchAddress(address)}>Search</button>
+      <!-- Removed extra input and button -->
+
       <div class="p-4 surface-variant outline-text rounded-lg space-y-3">
         <p>
           <a
