@@ -20,6 +20,7 @@
   import * as GMAPILoader from '@googlemaps/js-api-loader';
   const { Loader } = GMAPILoader;
 
+  import { page } from '$app/stores';
   import { onMount } from 'svelte';
 
   import SearchBar from './components/SearchBar.svelte';
@@ -30,15 +31,37 @@
     name: 'Rinconada Library',
     address: '1213 Newell Rd, Palo Alto, CA 94303',
   };
+
+  let address = '';
+  $: addressParam = $page.url.searchParams.get('address');
+
   let location: google.maps.LatLng | undefined;
   const zoom = 19;
 
-  // Initialize app.
   let mapElement: HTMLElement;
   let map: google.maps.Map;
   let geometryLibrary: google.maps.GeometryLibrary;
   let mapsLibrary: google.maps.MapsLibrary;
   let placesLibrary: google.maps.PlacesLibrary;
+
+  // Helper: Geocode and update map/location
+  async function searchAddress(addr: string) {
+    if (!mapsLibrary || !map) return;
+    const geocoder = new google.maps.Geocoder();
+    try {
+      const response = await geocoder.geocode({ address: addr });
+      if (response.results && response.results.length > 0) {
+        location = response.results[0].geometry.location;
+        map.setCenter(location);
+        // Optionally, update zoom or add marker here
+      } else {
+        alert('Address not found.');
+      }
+    } catch (e) {
+      alert('Geocoding failed.');
+    }
+  }
+
   onMount(async () => {
     // Load the Google Maps libraries.
     const loader = new Loader({ apiKey: googleMapsApiKey });
@@ -71,6 +94,12 @@
       streetViewControl: false,
       zoomControl: false,
     });
+
+    // If address param exists, search for it
+    if (addressParam) {
+      address = addressParam.replace(/-/g, ' ');
+      await searchAddress(address);
+    }
   });
 </script>
 
@@ -83,7 +112,12 @@
   <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto">
     <div class="flex flex-col space-y-2 h-full">
       {#if placesLibrary && map}
-        <SearchBar bind:location {placesLibrary} {map} initialValue={defaultPlace.name} />
+        <SearchBar
+          bind:location
+          {placesLibrary}
+          {map}
+          initialValue={addressParam ? addressParam.replace(/-/g, ' ') : defaultPlace.name}
+        />
       {/if}
 
       <div class="p-4 surface-variant outline-text rounded-lg space-y-3">
