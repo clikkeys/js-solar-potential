@@ -44,7 +44,7 @@
   let mapsLibrary: google.maps.MapsLibrary;
   let placesLibrary: google.maps.PlacesLibrary;
 
-  // Helper: Geocode and update map/location
+  // Geocode and update map/location
   async function searchAddress(addr: string) {
     if (!mapsLibrary || !map) return;
     const geocoder = new google.maps.Geocoder();
