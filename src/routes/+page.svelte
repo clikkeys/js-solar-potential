@@ -120,6 +120,8 @@
         />
       {/if}
 
+      <input bind:value={address} placeholder="Enter address" />
+      <button on:click={() => searchAddress(address)}>Search</button>
       <div class="p-4 surface-variant outline-text rounded-lg space-y-3">
         <p>
           <a
