@@ -34,7 +34,7 @@
 
   let address = '';
   let addressParam = '';
-  $: addressParam = $page.url.searchParams.get('address');
+  $: addressParam = $page.url.searchParams.get('address') ?? '';
 
   let location: google.maps.LatLng | undefined;
   const zoom = 19;
