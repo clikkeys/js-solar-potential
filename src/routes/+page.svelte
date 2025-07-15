@@ -33,6 +33,7 @@
   };
 
   let address = '';
+  let addressParam = '';
   $: addressParam = $page.url.searchParams.get('address');
 
   let location: google.maps.LatLng | undefined;
@@ -44,7 +45,7 @@
   let mapsLibrary: google.maps.MapsLibrary;
   let placesLibrary: google.maps.PlacesLibrary;
 
-  // Helper: Geocode and update map/location
+  // Geocode and update map/location
   async function searchAddress(addr: string) {
     if (!mapsLibrary || !map) return;
     const geocoder = new google.maps.Geocoder();
@@ -112,11 +113,16 @@
   <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto">
     <div class="flex flex-col space-y-2 h-full">
       {#if placesLibrary && map}
-        <SearchBar bind:location {placesLibrary} {map} initialValue={defaultPlace.name} />
+        <SearchBar
+          bind:location
+          {placesLibrary}
+          {map}
+          initialValue={addressParam ? addressParam.replace(/-/g, ' ') : defaultPlace.name}
+        />
       {/if}
 
-      <input bind:value={address} placeholder="Enter address" />
-      <button on:click={() => searchAddress(address)}>Search</button>
+      <!-- Removed extra input and button -->
+
       <div class="p-4 surface-variant outline-text rounded-lg space-y-3">
         <p>
           <a
