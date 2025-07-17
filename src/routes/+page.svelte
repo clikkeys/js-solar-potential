@@ -110,7 +110,7 @@
   <div bind:this={mapElement} class="w-full" />
 
   <!-- Side bar -->
-  <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto">
+  <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto" style="display: none;">
     <div class="flex flex-col space-y-2 h-full">
       {#if placesLibrary && map}
         <SearchBar
