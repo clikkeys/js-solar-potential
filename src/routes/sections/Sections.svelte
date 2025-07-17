@@ -32,7 +32,7 @@
 
   // State
   let expandedSection: string = '';
-  let showPanels = true;
+  let showPanels = false;
 
   // User settings
   let monthlyAverageEnergyBillInput = 300;
