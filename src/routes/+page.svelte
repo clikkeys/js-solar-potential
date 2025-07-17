@@ -143,7 +143,9 @@
       </div>
 
       {#if location}
-        <Sections {location} {map} {geometryLibrary} {googleMapsApiKey} />
+        {#key location}
+          <Sections {location} {map} {geometryLibrary} {googleMapsApiKey} />
+        {/key}
       {/if}
 
       <div class="grow" />
