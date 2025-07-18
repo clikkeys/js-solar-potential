@@ -347,10 +347,10 @@
 </div>
 
 <div class="absolute bottom-6 left-0 w-full">
-  <div class="md:mr-96 mr-80 grid place-items-center">
+  <div class=" grid place-items-center">
     {#if layer}
       <div
-        class="flex items-center surface on-surface-text pr-4 text-center label-large rounded-full shadow-md"
+        class="monthly-slider flex items-center surface on-surface-text pr-4 text-center label-large shadow-md"
       >
         {#if layer.id == 'monthlyFlux'}
           <md-slider
@@ -393,3 +393,8 @@
     {/if}
   </div>
 </div>
+<style>
+.monthly-slider {
+    background-color: rgb(255 255 255 / 80%) !important;
+}
+</style>

@@ -110,7 +110,7 @@
   <div bind:this={mapElement} class="w-full" />
 
   <!-- Side bar -->
-  <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto" style="display: none;">
+  <aside class="flex-none md:w-96 w-80 p-2 pt-3 overflow-auto">
     <div class="flex flex-col space-y-2 h-full">
       {#if placesLibrary && map}
         <SearchBar
@@ -166,3 +166,22 @@
     </div>
   </aside>
 </div>
+<style>
+aside {
+    width: 0 !important;
+    padding: 0 !important;
+}
+:global(md-slider) {
+  --md-slider-active-track-color: #013873;
+  --md-slider-inactive-track-color: #ccc;
+  --md-slider-handle-color: #013873;
+  width: 100%;
+  margin: 0;
+}
+
+/* Or use the ::part pseudo-element if supported: */
+:global(md-slider)::part(handle), :global(md-slider)::part(handle):hover{
+  background-color: #013873 !important;
+}
+
+</style>
